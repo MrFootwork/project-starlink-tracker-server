@@ -4,6 +4,9 @@ import morgan from 'morgan';
 import { authMiddleware } from './middlwares/authMiddleware.js';
 import axios from 'axios';
 
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+
 dotenv.config();
 
 const server = jsonServer.create();
@@ -32,6 +35,27 @@ io.use((socket, next) => {
 	console.log('Socket connected:', socket.id);
 	next();
 });
+
+// Handle WebSocket connections
+io.on('connection', socket => {
+	console.log('A user connected:', socket.id);
+
+	// Listen for incoming chat messages
+	socket.on('chatMessage', message => {
+		console.log(`Message received: ${message}`);
+		// Broadcast the message to all connected clients
+		io.emit('chatMessage', message);
+	});
+
+	// Handle disconnections
+	socket.on('disconnect', () => {
+		console.log('A user disconnected:', socket.id);
+	});
+});
+
+// io.listen(4000, () => {
+// 	console.log(`Chat Server is running on http://localhost:${4000}`);
+// });
 
 // Health
 server.get('/health', (req, res) => {
@@ -121,6 +145,6 @@ server.use((req, res, next) => {
 
 // Use default router
 server.use(router);
-server.listen(PORT, () => {
+httpServer.listen(PORT, () => {
 	console.log(`JSON Server is running at port ${PORT}`);
 });
