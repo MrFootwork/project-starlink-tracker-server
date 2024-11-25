@@ -5,6 +5,7 @@
 			"password": "123456"
 		}
 	],
+	"sessions": [{ "token": "blabla", "username": "Pandau" }],
 	"messages": [
 		{
 			"timestamp": "2024-11-25T13:20:15.517Z",

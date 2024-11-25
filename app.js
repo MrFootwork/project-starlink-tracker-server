@@ -26,7 +26,7 @@ const io = new Server(httpServer, {
 	// https://socket.io/how-to/use-with-react
 	// enable CORS during development
 	cors: {
-		origin: 'http://localhost:5173',
+		origin: '*',
 	},
 });
 
@@ -52,10 +52,6 @@ io.on('connection', socket => {
 		console.log('A user disconnected:', socket.id);
 	});
 });
-
-// io.listen(4000, () => {
-// 	console.log(`Chat Server is running on http://localhost:${4000}`);
-// });
 
 // Health
 server.get('/health', (req, res) => {
