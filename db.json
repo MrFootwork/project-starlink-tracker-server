@@ -1,5 +1,44 @@
 {
-	"users": [],
+	"users": [
+		{
+			"username": "Pandau",
+			"password": "123456"
+		}
+	],
+	"messages": [
+		{
+			"timestamp": "2024-11-25T13:20:15.517Z",
+			"user": {
+				"username": "karim",
+				"image": "some-random-image.png"
+			},
+			"message": "hi"
+		},
+		{
+			"timestamp": "2024-11-25T13:21:15.517Z",
+			"user": {
+				"username": "Pandau",
+				"image": "some-random-image.png"
+			},
+			"message": "hi, how are you ?"
+		},
+		{
+			"timestamp": "2024-11-25T13:22:15.517Z",
+			"user": {
+				"username": "karim",
+				"image": "some-random-image.png"
+			},
+			"message": "i'm fine thx"
+		},
+		{
+			"timestamp": "2024-11-25T13:23:15.517Z",
+			"user": {
+				"username": "Pandau",
+				"image": "some-random-image.png"
+			},
+			"message": "HALOOO~~~~"
+		}
+	],
 	"starlinks": [
 		{
 			"spaceTrack": {

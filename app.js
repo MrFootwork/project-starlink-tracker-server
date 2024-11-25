@@ -17,10 +17,19 @@ server.use(middlewares);
 server.use(authMiddleware);
 server.use(morgan('dev'));
 
-// Add custom routes before JSON Server router
-server.use((req, res, next) => {
-	// Middleware to disable CORS
-	res.header('Access-Control-Allow-Origin', '*');
+// Chat
+const httpServer = createServer(server);
+const io = new Server(httpServer, {
+	// https://socket.io/how-to/use-with-react
+	// enable CORS during development
+	cors: {
+		origin: 'http://localhost:5173',
+	},
+});
+
+// Middleware to log connection details
+io.use((socket, next) => {
+	console.log('Socket connected:', socket.id);
 	next();
 });
 
