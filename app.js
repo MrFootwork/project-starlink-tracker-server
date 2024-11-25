@@ -20,7 +20,62 @@ server.use(middlewares);
 server.use(authMiddleware);
 server.use(morgan('dev'));
 
-// Chat
+// To handle POST, PUT and PATCH you need to use a body-parser
+// You can use the one used by JSON Server
+server.use(jsonServer.bodyParser);
+server.use((req, res, next) => {
+	if (req.method === 'POST') {
+		req.body.createdAt = Date.now();
+	}
+	// Continue to JSON Server router
+	next();
+});
+
+/***********************
+ * User Authentication
+ **********************/
+server.post('/signin', (req, res) => {
+	const db = router.db;
+	const users = db.get('users');
+	const newUser = req.body;
+	console.log(`🚀 ~ server.post ~ newUser:`, newUser);
+
+	// FIXME no duplicate usernames allowed
+	// FIXME generate unique IDs
+	try {
+		const addedUser = users.insert({ ...newUser, id: 3333 }).write();
+		console.log(`🚀 ~ server.post ~ addedUser:`, addedUser);
+
+		res.status(201).json({
+			message: 'User data received successfully and added to the database!',
+			data: addedUser,
+		});
+	} catch (error) {
+		console.error('ERROR: ', error);
+
+		res.status(500).json({
+			status: 'Failed to add new user to database.',
+			message: `The new user ${newUser} couldn't be written to the databse due to Error: ${error}`,
+		});
+	}
+});
+
+// FIXME create session and login after signin
+server.post('/login', (req, res) => {
+	console.log('logging in...');
+});
+
+server.post('/logout', (req, res) => {
+	console.log('logging out...');
+});
+
+server.get('/user', (req, res) => {
+	console.log('getting user...');
+});
+
+/***********************
+ * CHAT
+ **********************/
 const httpServer = createServer(server);
 const io = new Server(httpServer, {
 	// https://socket.io/how-to/use-with-react
@@ -126,17 +181,6 @@ server.post('/db-refresh', async (req, res) => {
 			message: `Database couldn't be refreshed. Check if any data was lost! ${error}`,
 		});
 	}
-});
-
-// To handle POST, PUT and PATCH you need to use a body-parser
-// You can use the one used by JSON Server
-server.use(jsonServer.bodyParser);
-server.use((req, res, next) => {
-	if (req.method === 'POST') {
-		req.body.createdAt = Date.now();
-	}
-	// Continue to JSON Server router
-	next();
 });
 
 // Use default router
