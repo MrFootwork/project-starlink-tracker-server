@@ -33,7 +33,6 @@ export const authMiddleware = (req, res, next) => {
 
 		// Attach user data to request object
 		req.user = decoded;
-		console.log(`🚀 ~ jwt.verify ~ req.user:`, req.user);
 		next();
 	});
 };

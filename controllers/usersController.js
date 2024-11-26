@@ -106,12 +106,12 @@ export const getToken = (req, res) => {
 				const token = jwt.sign(
 					{ userId: user.id, username: user.username },
 					SECRET_KEY,
-					{ expiresIn: '1h' }
+					{ expiresIn: '24h' }
 				);
 
 				// send Cookie
 				res.cookie('session-token', token, {
-					maxAge: 60 * 60 * 1000,
+					maxAge: 24 * 60 * 60 * 1000,
 					httpOnly: true,
 					sameSite: 'lax',
 					secure: false,
