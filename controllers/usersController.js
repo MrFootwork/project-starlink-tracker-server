@@ -115,6 +115,7 @@ export const getToken = (req, res) => {
 					httpOnly: true,
 					sameSite: 'none',
 					secure: true,
+					partition: true,
 				});
 
 				return res.status(200).json({
