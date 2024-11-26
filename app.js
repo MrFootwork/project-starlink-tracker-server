@@ -1,11 +1,19 @@
 import jsonServer from 'json-server';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
-import { authMiddleware } from './middlwares/authMiddleware.js';
-import axios from 'axios';
 
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+
+import { authMiddleware } from './middlware/auth.js';
+import {
+	createUser,
+	deleteToken,
+	getToken,
+	getUser,
+} from './controllers/usersController.js';
+import { createStarlinks } from './controllers/starlinksController.js';
+import { getHealth } from './controllers/healthController.js';
 
 dotenv.config();
 
@@ -13,7 +21,6 @@ const server = jsonServer.create();
 const router = jsonServer.router('db.json');
 const middlewares = jsonServer.defaults();
 const PORT = process.env.PORT || 3000;
-const STARLINK_API = process.env.STARLINK_API;
 
 // Set default middlewares (logger, static, cors and no-cache)
 server.use(middlewares);
@@ -31,47 +38,19 @@ server.use((req, res, next) => {
 	next();
 });
 
+// Health
+server.get('/health', getHealth);
+
+// Fetch Starlink Data and save it to database
+server.post('/db-refresh', createStarlinks);
+
 /***********************
  * User Authentication
  **********************/
-server.post('/signin', (req, res) => {
-	const db = router.db;
-	const users = db.get('users');
-	const newUser = req.body;
-	console.log(`🚀 ~ server.post ~ newUser:`, newUser);
-
-	// FIXME no duplicate usernames allowed
-	// FIXME generate unique IDs
-	try {
-		const addedUser = users.insert({ ...newUser, id: 3333 }).write();
-		console.log(`🚀 ~ server.post ~ addedUser:`, addedUser);
-
-		res.status(201).json({
-			message: 'User data received successfully and added to the database!',
-			data: addedUser,
-		});
-	} catch (error) {
-		console.error('ERROR: ', error);
-
-		res.status(500).json({
-			status: 'Failed to add new user to database.',
-			message: `The new user ${newUser} couldn't be written to the databse due to Error: ${error}`,
-		});
-	}
-});
-
-// FIXME create session and login after signin
-server.post('/login', (req, res) => {
-	console.log('logging in...');
-});
-
-server.post('/logout', (req, res) => {
-	console.log('logging out...');
-});
-
-server.get('/user', (req, res) => {
-	console.log('getting user...');
-});
+server.post('/signin', createUser);
+server.post('/login', getToken);
+server.post('/logout', deleteToken);
+server.get('/user', getUser);
 
 /***********************
  * CHAT
@@ -106,81 +85,6 @@ io.on('connection', socket => {
 	socket.on('disconnect', () => {
 		console.log('A user disconnected:', socket.id);
 	});
-});
-
-// Health
-server.get('/health', (req, res) => {
-	try {
-		// Access the router's database
-		const db = router.db; // lowdb instance
-		const dbState = db.getState();
-
-		// Check if the database contains any data
-		const hasData = Object.values(dbState).some(
-			collection => Array.isArray(collection) && collection.length > 0
-		);
-
-		// Respond with health status
-		const status = hasData ? 'healthy' : 'unhealthy';
-		const httpStatus = hasData ? 200 : 503;
-
-		res.status(httpStatus).json({
-			status,
-			message: hasData
-				? 'Database contains data.'
-				: 'Database is empty. Please add data to db.json.',
-		});
-	} catch (error) {
-		// Handle unexpected errors
-		console.error('Health check error:', error);
-		res.status(500).json({
-			status: 'error',
-			message: `Health check failed because ${error}`,
-		});
-	}
-});
-
-// Fetch Starlink Data and save it to database
-server.post('/db-refresh', async (req, res) => {
-	try {
-		const { data } = await axios.get(STARLINK_API);
-
-		const starlinkCollection = 'starlinks';
-		const db = router.db;
-
-		const sanitizedStarlinks = data.map(starlink => {
-			return {
-				spaceTrack: {
-					INCLINATION: starlink.spaceTrack.INCLINATION,
-					PERIOD: starlink.spaceTrack.PERIOD,
-					OBJECT_NAME: starlink.spaceTrack.OBJECT_NAME,
-					DECAYED: starlink.spaceTrack.DECAYED,
-					TLE_LINE0: starlink.spaceTrack.TLE_LINE0,
-					TLE_LINE1: starlink.spaceTrack.TLE_LINE1,
-					TLE_LINE2: starlink.spaceTrack.TLE_LINE2,
-				},
-				id: starlink.id,
-				latitude: starlink.latitude,
-				longitude: starlink.longitude,
-				height_km: starlink.height_km,
-				velocity_kms: starlink.velocity_kms,
-			};
-		});
-
-		await db.set(starlinkCollection, sanitizedStarlinks).write();
-
-		res.status(200).json({
-			status: 'Database refresh successful.',
-			message: 'Fetched from Starlink API and refreshed database.',
-		});
-
-		res.json({ message: 'This is a custom route!' });
-	} catch (error) {
-		res.status(500).json({
-			status: 'Database refresh failed.',
-			message: `Database couldn't be refreshed. Check if any data was lost! ${error}`,
-		});
-	}
 });
 
 // Use default router
