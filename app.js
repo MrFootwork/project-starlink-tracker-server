@@ -57,6 +57,18 @@ server.post('/signin', createUser);
 server.post('/login', getToken);
 server.post('/logout', deleteToken);
 server.get('/user', getUser);
+server.get('/cookie', (req, res) => {
+	res.cookie('test-cookie', {
+		value: 'random 🤣',
+		httpOnly: true,
+		sameSite: 'none',
+		secure: true,
+		partition: true,
+	});
+	return res.status(200).json({
+		message: 'cookie sent',
+	});
+});
 
 /***********************
  * CHAT
