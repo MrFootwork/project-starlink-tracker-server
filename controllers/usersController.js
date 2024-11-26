@@ -93,7 +93,6 @@ export const getToken = (req, res) => {
 
 		(async () => {
 			isMatch = (await verifyPassword(password, user)) || false;
-			console.log(`🚀 ~ isMatch:`, isMatch);
 
 			if (isMatch) {
 				const resUser = {
@@ -102,7 +101,6 @@ export const getToken = (req, res) => {
 					createdAt: user.createdAt,
 					id: user.id,
 				};
-				console.log(`🚀 ~ resUser:`, resUser);
 
 				// Create Token
 				const token = jwt.sign(
@@ -111,22 +109,17 @@ export const getToken = (req, res) => {
 					{ expiresIn: '1h' }
 				);
 
-				// Create Session
-				const newSession = {
-					userId: user.id,
-					token: token,
-					createdAt: Date.now(),
-					expiresAt: Date.now() + 60 * 60 * 1000,
-				};
-
-				// Track Token in sessions
-				const newToken = dbSessions.insert(newSession).write();
-				console.log(`🚀 ~ newToken:`, newToken);
+				// send Cookie
+				res.cookie('session-token', token, {
+					maxAge: 60 * 60 * 1000,
+					httpOnly: true,
+					sameSite: 'lax',
+					secure: false,
+				});
 
 				return res.status(200).json({
 					message: 'Login successful',
 					resUser,
-					token,
 				});
 			} else {
 				return res
@@ -143,9 +136,18 @@ export const getToken = (req, res) => {
 };
 
 export const deleteToken = (req, res) => {
-	console.log('logging out...');
-	// FIXME delete session from database
-	// FIXME Should also be deleted clientside
+	console.log('Logging out...');
+
+	// Clear the session-token cookie by setting it to expire immediately
+	res.cookie('session-token', '', {
+		maxAge: 0,
+		httpOnly: true,
+		sameSite: 'lax',
+		secure: false,
+	});
+
+	// Send a response confirming logout
+	res.status(200).json({ message: 'Logged out successfully' });
 };
 
 export const getUser = (req, res) => {
@@ -163,7 +165,7 @@ export const getUser = (req, res) => {
 
 		return res.status(200).json({
 			message: 'Userinfo retrieval successful.',
-			resUser,
+			data: resUser,
 		});
 	} catch (error) {
 		return res.status(500).json({

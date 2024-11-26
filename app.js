@@ -26,6 +26,12 @@ const PORT = process.env.PORT || 3000;
 server.use(middlewares);
 server.use(authMiddleware);
 server.use(morgan('dev'));
+// server.use(
+// 	cors({
+// 		origin: '*',
+// 		credentials: true,
+// 	})
+// );
 
 // To handle POST, PUT and PATCH you need to use a body-parser
 // You can use the one used by JSON Server
@@ -61,6 +67,7 @@ const io = new Server(httpServer, {
 	// enable CORS during development
 	cors: {
 		origin: '*',
+		credentials: true,
 	},
 });
 
