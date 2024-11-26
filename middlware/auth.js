@@ -9,10 +9,11 @@ const unprotectedEndpoints = [
 	'/signin',
 	'/logout',
 	'/health',
-	'/cookie',
+	// '/cookie',
 ];
 
 export const authMiddleware = (req, res, next) => {
+	// return next();
 	// These endpoints don't require valid tokens
 	if (unprotectedEndpoints.includes(req.url)) return next();
 

@@ -1,7 +1,7 @@
 import jsonServer from 'json-server';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
-
+import path from 'path';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 
@@ -58,8 +58,7 @@ server.post('/login', getToken);
 server.post('/logout', deleteToken);
 server.get('/user', getUser);
 server.get('/cookie', (req, res) => {
-	res.cookie('test-cookie', {
-		value: 'random 🤣',
+	res.cookie('test-cookie', 'this is cookie value', {
 		httpOnly: true,
 		sameSite: 'none',
 		secure: true,
@@ -105,6 +104,11 @@ io.on('connection', socket => {
 		console.log('A user disconnected:', socket.id);
 	});
 });
+
+// Fallback Route
+// server.get('*', (req, res) => {
+// 	return res.sendFile(path.join(__dirname, '/index.html'));
+// });
 
 // Use default router
 server.use(router);
