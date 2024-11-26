@@ -151,21 +151,10 @@ export const deleteToken = (req, res) => {
 };
 
 export const getUser = (req, res) => {
-	const { username } = req.body;
-
 	try {
-		const user = dbUsers.find({ username }).value();
-
-		const resUser = {
-			username: user.username,
-			image: user.image,
-			createdAt: user.createdAt,
-			id: user.id,
-		};
-
 		return res.status(200).json({
 			message: 'Userinfo retrieval successful.',
-			data: resUser,
+			data: req.user,
 		});
 	} catch (error) {
 		return res.status(500).json({
