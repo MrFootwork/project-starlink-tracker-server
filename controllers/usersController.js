@@ -114,7 +114,7 @@ export const getToken = (req, res) => {
 					// maxAge: 24 * 60 * 60 * 1000,
 					httpOnly: true,
 					sameSite: 'none',
-					secure: false,
+					secure: true,
 				});
 
 				return res.status(200).json({
