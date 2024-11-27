@@ -1,11 +1,12 @@
 import jsonServer from 'json-server';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
-import path from 'path';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import cors from 'cors';
 
 import { authMiddleware } from './middlware/auth.js';
+
 import {
 	createUser,
 	deleteToken,
@@ -19,6 +20,9 @@ dotenv.config();
 
 const server = jsonServer.create();
 const router = jsonServer.router('db.json');
+const db = router.db;
+const dbMessages = db.get('messages');
+
 const middlewares = jsonServer.defaults();
 const PORT = process.env.PORT || 3000;
 
@@ -26,12 +30,25 @@ const PORT = process.env.PORT || 3000;
 server.use(middlewares);
 server.use(authMiddleware);
 server.use(morgan('dev'));
-// server.use(
-// 	cors({
-// 		origin: '*',
-// 		credentials: true,
-// 	})
-// );
+
+// Allow Origins
+const allowedOrigins = [
+	'http://localhost:5173', // Development frontend
+	'https://project-starlink-tracker.onrender.com', // Production frontend
+];
+
+const corsOptions = {
+	origin: (origin, callback) => {
+		if (allowedOrigins.includes(origin) || !origin) {
+			callback(null, true);
+		} else {
+			callback(new Error('Not allowed by CORS'));
+		}
+	},
+	credentials: true,
+};
+
+server.use(cors(corsOptions));
 
 // To handle POST, PUT and PATCH you need to use a body-parser
 // You can use the one used by JSON Server
@@ -93,8 +110,12 @@ io.on('connection', socket => {
 	console.log('A user connected:', socket.id);
 
 	// Listen for incoming chat messages
-	socket.on('chatMessage', message => {
-		console.log(`Message received: ${message}`);
+	socket.on('sendMessage', message => {
+		console.log(`Message received: ${{ message }}`);
+		console.table({ message });
+		// Store new messages
+		dbMessages.insert(message).write();
+
 		// Broadcast the message to all connected clients
 		io.emit('chatMessage', message);
 	});
@@ -104,11 +125,6 @@ io.on('connection', socket => {
 		console.log('A user disconnected:', socket.id);
 	});
 });
-
-// Fallback Route
-// server.get('*', (req, res) => {
-// 	return res.sendFile(path.join(__dirname, '/index.html'));
-// });
 
 // Use default router
 server.use(router);

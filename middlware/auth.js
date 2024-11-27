@@ -4,16 +4,9 @@ import jwt from 'jsonwebtoken';
 dotenv.config();
 const SECRET_KEY = process.env.SECRET_KEY;
 
-const unprotectedEndpoints = [
-	'/login',
-	'/signin',
-	'/logout',
-	'/health',
-	// '/cookie',
-];
+const unprotectedEndpoints = ['/login', '/signin', '/logout', '/health'];
 
 export const authMiddleware = (req, res, next) => {
-	// return next();
 	// These endpoints don't require valid tokens
 	if (unprotectedEndpoints.includes(req.url)) return next();
 

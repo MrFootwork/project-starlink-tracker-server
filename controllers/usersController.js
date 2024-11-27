@@ -10,7 +10,6 @@ const SECRET_KEY = process.env.SECRET_KEY;
 const router = jsonServer.router('db.json');
 const db = router.db;
 const dbUsers = db.get('users');
-const dbSessions = db.get('sessions');
 
 export const createUser = (req, res) => {
 	const newUser = req.body;
@@ -111,7 +110,6 @@ export const getToken = (req, res) => {
 
 				// send Cookie
 				res.cookie('session-token', token, {
-					// maxAge: 24 * 60 * 60 * 1000,
 					httpOnly: true,
 					sameSite: 'none',
 					secure: true,
