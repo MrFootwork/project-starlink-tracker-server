@@ -10,14 +10,20 @@ export const generateDeleteController = io => {
 	return async (req, res) => {
 		// Process request data
 		const user = req.user;
+		console.log(`🚀 ~ return ~ user:`);
+		console.table(user);
+
 		let [, , messageID] = req.url.split('/');
 		messageID = +messageID;
 
 		// Extract Message
 		const foundMessage = dbMessages.find({ id: messageID }).value();
+		console.log(`🚀 ~ return ~ foundMessage:`, foundMessage);
+		console.table(foundMessage);
+		console.table(foundMessage.user);
 
 		// Verify user is allowed to make the deletion
-		const userCanDelete = foundMessage.user.userId === user.userId;
+		const userCanDelete = foundMessage.user.id === user.id;
 
 		if (userCanDelete) {
 			// Add delete flag to the message
@@ -64,7 +70,7 @@ export const generateEditController = io => {
 		console.table(foundMessage.user);
 
 		// Verify user is allowed to make the deletion
-		const userCanEdit = foundMessage.user.userId === user.userId;
+		const userCanEdit = foundMessage.user.id === user.id;
 
 		if (userCanEdit) {
 			// Edit Message
