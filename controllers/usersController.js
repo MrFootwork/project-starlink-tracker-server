@@ -103,7 +103,7 @@ export const getToken = (req, res) => {
 
 				// Create Token
 				const token = jwt.sign(
-					{ userId: user.id, username: user.username, image: user.image },
+					{ id: user.id, username: user.username, image: user.image },
 					SECRET_KEY,
 					{ expiresIn: '24h' }
 				);

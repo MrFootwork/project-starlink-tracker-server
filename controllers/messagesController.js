@@ -45,7 +45,9 @@ export const generateEditController = io => {
 	return async (req, res) => {
 		// Process request data
 		const user = req.user;
-		console.table(`🚀 ~ return ~ user:`, user);
+		console.log(`🚀 ~ return ~ user:`);
+		console.table(user);
+
 		console.log('REQ BODY:', req.body);
 		const editedMessage = req.body.message;
 		console.log(`🚀 ~ return ~ editedMessage:`, editedMessage);
@@ -55,8 +57,11 @@ export const generateEditController = io => {
 
 		// Extract Message
 		const foundMessage = dbMessages.find({ id: messageID }).value();
-		console.table(`🚀 ~ return ~ foundMessage:`, foundMessage);
-		console.table(`🚀 ~ return ~ foundMessage.user:`, foundMessage.user);
+		console.log(`🚀 ~ return ~ foundMessage:`);
+		console.table(foundMessage);
+
+		console.log(`🚀 ~ return ~ foundMessage.user:`);
+		console.table(foundMessage.user);
 
 		// Verify user is allowed to make the deletion
 		const userCanEdit = foundMessage.user.userId === user.userId;
