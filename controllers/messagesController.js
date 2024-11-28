@@ -2,12 +2,13 @@ import jsonServer from 'json-server';
 
 const router = jsonServer.router('db.json');
 const db = router.db;
-const dbMessages = db.get('messages');
+
 
 // FIXME Event changeMessage
 // data: modified, deleted
 export const generateDeleteController = io => {
 	return async (req, res) => {
+		const dbMessages = db.get('messages');
 		// Process request data
 		const user = req.user;
 		console.log(`🚀 ~ return ~ user:`);
@@ -17,7 +18,7 @@ export const generateDeleteController = io => {
 		messageID = +messageID;
 
 		// Extract Message
-		const foundMessage = await dbMessages.find({ id: messageID }).value();
+		const foundMessage = await dbMessages.find({ id: messageID });
 		console.log(`🚀 ~ return ~ foundMessage:`, foundMessage);
 		console.table(foundMessage);
 		console.table(foundMessage.user);
@@ -49,6 +50,7 @@ export const generateDeleteController = io => {
 
 export const generateEditController = io => {
 	return async (req, res) => {
+		const dbMessages = db.get('messages');
 		// Process request data
 		const user = req.user;
 		console.log(`🚀 ~ return ~ user:`);

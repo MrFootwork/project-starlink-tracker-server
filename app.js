@@ -39,6 +39,7 @@ server.use(morgan('dev'));
 const allowedOrigins = [
 	'http://localhost:5173', // Development frontend
 	'https://project-starlink-tracker.onrender.com', // Production frontend
+	'*',
 ];
 
 const corsOptions = {
@@ -120,6 +121,7 @@ io.on('connection', socket => {
 	socket.on('sendMessage', message => {
 		console.log(`Message received: ${{ message }}`);
 		console.table({ message });
+		console.log(message.user)
 		// Store new messages
 		dbMessages.insert(message).write();
 
@@ -127,14 +129,18 @@ io.on('connection', socket => {
 		io.emit('chatMessage', message);
 	});
 
+	socket.on('useChangeMessage', (message) => {
+		io.emit('changeMessage', message);
+	})
+
 	// Handle disconnections
 	socket.on('disconnect', () => {
 		console.log('A user disconnected:', socket.id);
 	});
 });
 
-server.delete('/message/:id', generateDeleteController(io));
-server.put('/message/:id', generateEditController(io));
+// server.delete('/message/:id', generateDeleteController(io));
+// server.put('/message/:id', generateEditController(io));
 
 // Use default router
 server.use(router);
