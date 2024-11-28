@@ -15,6 +15,10 @@ import {
 } from './controllers/usersController.js';
 import { createStarlinks } from './controllers/starlinksController.js';
 import { getHealth } from './controllers/healthController.js';
+import {
+	generateDeleteController,
+	generateEditController,
+} from './controllers/messagesController.js';
 
 dotenv.config();
 
@@ -90,6 +94,7 @@ server.get('/cookie', (req, res) => {
  * CHAT
  **********************/
 const httpServer = createServer(server);
+// FIXME Extract that into a module
 const io = new Server(httpServer, {
 	// https://socket.io/how-to/use-with-react
 	// enable CORS during development
@@ -98,6 +103,8 @@ const io = new Server(httpServer, {
 		credentials: true,
 	},
 });
+
+// const io = new SocketIO(httpServer).server;
 
 // Middleware to log connection details
 io.use((socket, next) => {
@@ -125,6 +132,9 @@ io.on('connection', socket => {
 		console.log('A user disconnected:', socket.id);
 	});
 });
+
+server.delete('/message/:id', generateDeleteController(io));
+server.put('/message/:id', generateEditController(io));
 
 // Use default router
 server.use(router);
