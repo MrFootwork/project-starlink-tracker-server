@@ -45,12 +45,18 @@ export const generateEditController = io => {
 	return async (req, res) => {
 		// Process request data
 		const user = req.user;
+		console.table(`🚀 ~ return ~ user:`, user);
+		console.log('REQ BODY:', req.body);
 		const editedMessage = req.body.message;
+		console.log(`🚀 ~ return ~ editedMessage:`, editedMessage);
 		let [, , messageID] = req.url.split('/');
 		messageID = +messageID;
+		console.log(`🚀 ~ return ~ messageID:`, messageID);
 
 		// Extract Message
 		const foundMessage = dbMessages.find({ id: messageID }).value();
+		console.table(`🚀 ~ return ~ foundMessage:`, foundMessage);
+		console.table(`🚀 ~ return ~ foundMessage.user:`, foundMessage.user);
 
 		// Verify user is allowed to make the deletion
 		const userCanEdit = foundMessage.user.userId === user.userId;
