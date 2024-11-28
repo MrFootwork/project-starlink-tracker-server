@@ -17,7 +17,7 @@ export const generateDeleteController = io => {
 		messageID = +messageID;
 
 		// Extract Message
-		const foundMessage = dbMessages.find({ id: messageID }).value();
+		const foundMessage = await dbMessages.find({ id: messageID }).value();
 		console.log(`🚀 ~ return ~ foundMessage:`, foundMessage);
 		console.table(foundMessage);
 		console.table(foundMessage.user);
@@ -30,7 +30,7 @@ export const generateDeleteController = io => {
 			foundMessage.deleted = true;
 
 			// Update the message in the DB
-			dbMessages
+			await dbMessages
 				.find({ id: messageID })
 				.update({ ...foundMessage })
 				.write();
@@ -62,7 +62,7 @@ export const generateEditController = io => {
 		console.log(`🚀 ~ return ~ messageID:`, messageID);
 
 		// Extract Message
-		const foundMessage = dbMessages.find({ id: messageID }).value();
+		const foundMessage = await dbMessages.find({ id: messageID }).value();
 		console.log(`🚀 ~ return ~ foundMessage:`);
 		console.table(foundMessage);
 
@@ -80,7 +80,7 @@ export const generateEditController = io => {
 			foundMessage.modified = true;
 
 			// Update the message in the DB
-			dbMessages
+			await dbMessages
 				.find({ id: messageID })
 				.update({ ...foundMessage })
 				.write();
